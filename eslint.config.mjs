@@ -9,7 +9,7 @@ export default [
   { files: ['**/*.{js,mjs,cjs,ts}'] },
   { ignores: ['.node_modules/*', 'build'] },
   {
-    languageOptions: { globals: globals.node },
+    languageOptions: { globals: globals.node }
   },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
