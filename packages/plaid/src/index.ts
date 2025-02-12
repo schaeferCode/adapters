@@ -12,6 +12,7 @@ export type Holding = {
   quantity: number
   costBasis?: number
   currencyCode: string
+  securityId: string
 }
 
 export interface FinTechAdapter {
@@ -99,7 +100,8 @@ class PlaidAdapter implements IPlaidAdapter {
           ticker: security?.ticker_symbol || undefined,
           quantity: quantity,
           costBasis: cost_basis || undefined,
-          currencyCode: currencyCode!
+          currencyCode: currencyCode!,
+          securityId: security_id
         }
       }
     )
