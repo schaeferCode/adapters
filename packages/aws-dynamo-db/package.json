@@ -13,7 +13,8 @@
   "scripts": {
     "clean": "rm -rf ./build",
     "test": "vitest",
-    "build": "npm run clean && tsc --build"
+    "build": "npm run clean && tsc --build",
+    "publish": "npm publish --access public"
   },
   "keywords": [],
   "author": "",
