@@ -2,7 +2,9 @@ import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
-  S3ClientConfig
+  S3ClientConfig,
+  HeadBucketCommand,
+  CreateBucketCommand
 } from '@aws-sdk/client-s3'
 
 export type UploadResult = {
@@ -49,6 +51,35 @@ class S3Adapter implements IBucketAdapter {
 
     this.s3 = new S3Client(clientConfig)
     this.bucket = bucket
+  }
+
+  // Function to check if the bucket exists
+  // TODO: Add tests
+  private async checkBucketExists(): Promise<boolean> {
+    const headBucketCommand = new HeadBucketCommand({
+      Bucket: this.bucket
+    })
+    await this.s3.send(headBucketCommand)
+    return true
+  }
+
+  // Function to create the bucket if it doesn't exist
+  // TODO: Add tests
+  private async createBucket(): Promise<void> {
+    const createBucketCommand = new CreateBucketCommand({
+      Bucket: this.bucket
+    })
+    await this.s3.send(createBucketCommand)
+    console.log(`Bucket "${this.bucket}" created successfully!`)
+  }
+
+  // Function to ensure the bucket exists or create it
+  // TODO: Add tests
+  async ensureBucketExists() {
+    const exists = await this.checkBucketExists()
+    if (!exists) {
+      await this.createBucket()
+    }
   }
 
   async upload({ body, key }: { key: string; body: string }) {

@@ -3,7 +3,7 @@
     "node": ">=22.12.0"
   },
   "name": "@schaefercode/aws-s3-adapter",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "main": "build/index.js",
   "files": [
     "build",
@@ -18,7 +18,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "Custom plaid adapter for specific use case",
+  "description": "Custom aws S3 adapter for specific use case",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.731.1"
   },

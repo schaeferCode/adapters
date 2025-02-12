@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import S3Adapter, { UploadResult } from '.' // Adjust the import as needed
 import {
   S3Client,
   PutObjectCommand,
@@ -8,6 +7,8 @@ import {
   GetObjectCommandOutput
 } from '@aws-sdk/client-s3'
 import { mockClient } from 'aws-sdk-client-mock'
+
+import S3Adapter, { UploadResult } from '.'
 
 // Mock the S3Client
 const s3Mock = mockClient(S3Client)
