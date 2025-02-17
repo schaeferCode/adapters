@@ -6,10 +6,11 @@ import {
 } from '@aws-sdk/client-dynamodb'
 import { mockClient } from 'aws-sdk-client-mock'
 
-import { DynamoDBAdapter, TEN_MINUTES_IN_SECONDS } from '.'
+import DynamoDBAdapter, { TEN_MINUTES_IN_SECONDS } from '.'
 
 const dbMock = mockClient(DynamoDBClient)
 
+// TODO: these tests are bad and should be evolved into more of an integration style test
 describe('DynamoDBAdapter', () => {
   const mockConfig = {
     endpoint: 'http://localhost:8000', // default mock endpoint
@@ -248,13 +249,3 @@ describe('DynamoDBAdapter', () => {
     })
   })
 })
-
-//       await DBAdapter.saveRecord(record)
-
-//       const params = mockClient.send.mock.calls[0][0].input
-//       const dontReturnUntil = params.Item.dontReturnUntil.S
-
-//       expect(dontReturnUntil).toBe(record.dontReturnUntil)
-//     })
-//   })
-// })

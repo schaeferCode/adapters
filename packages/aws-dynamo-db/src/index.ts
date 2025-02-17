@@ -1,4 +1,6 @@
 import {
+  CreateTableCommand,
+  DescribeTableCommand,
   DynamoDBClient,
   PutItemCommand,
   QueryCommand,
@@ -10,7 +12,7 @@ export type DBRecord = {
   s3Key: string
   timestamp: number // unix in seconds
   dontReturnUntil: number // unix in seconds
-  hasVerifiedX: boolean
+  hasVerifiedX?: boolean
   isVerifiedUser?: boolean
   xLink?: string
 }
@@ -41,7 +43,7 @@ interface IDBAdapter {
 /**
  * Adapter for DynamoDB
  */
-export class DynamoDBAdapter implements IDBAdapter {
+export default class DynamoDBAdapter implements IDBAdapter {
   private client: DynamoDBClient
   private tableName: string
 
@@ -67,6 +69,53 @@ export class DynamoDBAdapter implements IDBAdapter {
       endpoint
     })
     this.tableName = tableName
+  }
+
+  /**
+   * Checks if the DynamoDB table exists, and creates it if it doesn't.
+   *
+   * TODO: create tests for this
+   * TODO: add try/catch or let the consumer catch and process errors? Maybe add try/catches here and normalize them before throwing them again
+   */
+  async checkAndCreateTable() {
+    // Check if table exists
+    try {
+      const { Table } = await this.client.send(
+        new DescribeTableCommand({ TableName: this.tableName })
+      )
+      console.log(`Table ${this.tableName} already exists.`)
+      return Table
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.name === 'ResourceNotFoundException'
+      ) {
+        // Create the table if it doesn't exist
+        console.log(`Table ${this.tableName} not found. Creating it...`)
+
+        await this.client.send(
+          new CreateTableCommand({
+            TableName: this.tableName,
+            AttributeDefinitions: [
+              { AttributeName: 'displayName', AttributeType: 'S' },
+              { AttributeName: 'timestamp', AttributeType: 'N' }
+            ],
+            KeySchema: [
+              { AttributeName: 'displayName', KeyType: 'HASH' },
+              { AttributeName: 'timestamp', KeyType: 'RANGE' }
+            ],
+            BillingMode: 'PAY_PER_REQUEST' // Use on-demand for more flexibility
+          })
+        )
+        console.log(`Table ${this.tableName} created successfully.`)
+
+        // Return the newly created table info (optional)
+        return this.client.send(
+          new DescribeTableCommand({ TableName: this.tableName })
+        )
+      }
+      throw error
+    }
   }
 
   /**
@@ -138,9 +187,8 @@ export class DynamoDBAdapter implements IDBAdapter {
     }
 
     if (hasVerifiedX) {
-      params.IndexName = 'HasVerifiedXIndex'
-      params.KeyConditionExpression =
-        params.KeyConditionExpression + ' AND hasVerifiedX = :hasVerifiedX'
+      // params.IndexName = 'HasVerifiedXIndex'
+      params.FilterExpression = 'hasVerifiedX = :hasVerifiedX'
       params.ExpressionAttributeValues = params.ExpressionAttributeValues || {} // make TS happy
       params.ExpressionAttributeValues[':hasVerifiedX'] = { BOOL: true }
     }
